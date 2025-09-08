@@ -11,14 +11,34 @@ export async function POST(req: NextRequest) {
       const body = await req.json();
       const { prompt, make_instrumental, model, wait_audio } = body;
 
+      // Always get song IDs immediately, regardless of wait_audio setting
       const audioInfo = await (await sunoApi((await cookies()).toString())).generate(
         prompt,
         Boolean(make_instrumental),
         model || DEFAULT_MODEL,
-        Boolean(wait_audio)
+        false // Always set to false to return immediately
       );
 
-      return new NextResponse(JSON.stringify(audioInfo), {
+      // Format response with song IDs and helpful message
+      const response = {
+        songs: audioInfo.map(song => ({
+          id: song.id,
+          title: song.title,
+          status: song.status,
+          created_at: song.created_at,
+          model_name: song.model_name,
+          type: song.type,
+          // Include audio URLs if available
+          audio_url: song.audio_url || null,
+          video_url: song.video_url || null,
+          image_url: song.image_url || null
+        })),
+        message: wait_audio ?
+          "Songs are being generated. Use /api/get with song IDs to check completion status." :
+          "Songs submitted for generation."
+      };
+
+      return new NextResponse(JSON.stringify(response), {
         status: 200,
         headers: {
           'Content-Type': 'application/json',
@@ -26,18 +46,12 @@ export async function POST(req: NextRequest) {
         }
       });
     } catch (error: any) {
-      console.error('Error generating custom audio:', JSON.stringify(error.response.data));
-      if (error.response.status === 402) {
-        return new NextResponse(JSON.stringify({ error: error.response.data.detail }), {
-          status: 402,
-          headers: {
-            'Content-Type': 'application/json',
-            ...corsHeaders
-          }
-        });
-      }
-      return new NextResponse(JSON.stringify({ error: 'Internal server error: ' + JSON.stringify(error.response.data.detail) }), {
-        status: 500,
+      console.error('Error generating audio:', error);
+      return new NextResponse(JSON.stringify({
+        error: error.response?.data?.detail || error.toString(),
+        message: "Song generation request failed. Please try again."
+      }), {
+        status: error.response?.status || 500,
         headers: {
           'Content-Type': 'application/json',
           ...corsHeaders

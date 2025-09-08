@@ -6,37 +6,55 @@ import { corsHeaders } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  if (req.method === 'GET') {
-    try {
+  try {
+    console.log('=== GET_LIMIT DEBUG REQUEST ===');
+    console.log('Cookies from request:', (await cookies()).toString());
 
-      const limit = await (await sunoApi((await cookies()).toString())).get_credits();
+    const api = await sunoApi((await cookies()).toString());
+    const debugResult = await api.debugAuth();
 
+    console.log('Debug result:', JSON.stringify(debugResult, null, 2));
 
-      return new NextResponse(JSON.stringify(limit), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders
-        }
-      });
-    } catch (error) {
-      console.error('Error fetching limit:', error);
-
-      return new NextResponse(JSON.stringify({ error: 'Internal server error. ' + error }), {
-        status: 500,
+    if (!debugResult.success) {
+      return new NextResponse(JSON.stringify({
+        error: 'Authentication failed',
+        debug: debugResult
+      }), {
+        status: 401,
         headers: {
           'Content-Type': 'application/json',
           ...corsHeaders
         }
       });
     }
-  } else {
-    return new NextResponse('Method Not Allowed', {
+
+    // If debug succeeds, try to get credits
+    const credits = await api.get_credits();
+    return new NextResponse(JSON.stringify({
+      success: true,
+      credits_left: credits.credits_left,
+      period: credits.period,
+      monthly_limit: credits.monthly_limit,
+      monthly_usage: credits.monthly_usage,
+      debug: debugResult
+    }), {
+      status: 200,
       headers: {
-        Allow: 'GET',
+        'Content-Type': 'application/json',
         ...corsHeaders
-      },
-      status: 405
+      }
+    });
+  } catch (error: any) {
+    console.error('Error in get_limit:', error);
+    return new NextResponse(JSON.stringify({
+      error: 'Internal server error: ' + error.message,
+      details: error.response?.data || 'No additional details'
+    }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
     });
   }
 }

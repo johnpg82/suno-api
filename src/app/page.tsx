@@ -1,4 +1,5 @@
 import Section from "./components/Section";
+import ApiTester from "./components/ApiTester";
 import Markdown from 'react-markdown';
 
 
@@ -135,6 +136,18 @@ For more detailed documentation, please check out the demo site:
         </div>
 
       </Section>
+
+      {/* API Tester Section */}
+      <Section className="my-10">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">🧪 Test the API</h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Try out the Suno API endpoints directly from your browser. Generate music, lyrics, and check your account status.
+          </p>
+        </div>
+        <ApiTester />
+      </Section>
+
       <Section className="my-10">
         <article className="prose lg:prose-lg max-w-3xl">
           <Markdown>

@@ -78,6 +78,21 @@ You can choose your preferred deployment method:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fgcui-art%2Fsuno-api&env=SUNO_COOKIE,TWOCAPTCHA_KEY,BROWSER,BROWSER_GHOST_CURSOR,BROWSER_LOCALE,BROWSER_HEADLESS&project-name=suno-api&repository-name=suno-api)
 
+#### Deploy to Cloudflare Workers
+
+Cloudflare Workers now supports browser automation through their Browser Rendering service with Playwright support. You can deploy this API to Cloudflare Workers:
+
+```bash
+cd workers
+npm install
+npx wrangler deploy
+```
+
+See the [workers/README.md](workers/README.md) for detailed setup instructions.
+
+> [!NOTE]
+> Cloudflare Workers deployment requires a paid Cloudflare plan with Browser Rendering enabled.
+
 #### Run locally
 
 ```bash
