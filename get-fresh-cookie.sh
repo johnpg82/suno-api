@@ -47,3 +47,4 @@ echo "- If you can't find the request, try refreshing a few times"
 echo "- The cookie should be very long (around 2000 characters)"
 echo ""
 echo "🚀 Once you have the fresh cookie, the API should work!"
+

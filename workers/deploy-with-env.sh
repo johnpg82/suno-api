@@ -21,3 +21,4 @@ echo ""
 echo "🧪 Test commands:"
 echo "curl https://suno-api-workers.biomimic.workers.dev/api/get_limit"
 echo "curl -X POST https://suno-api-workers.biomimic.workers.dev/api/generate -H 'Content-Type: application/json' -d '{\"prompt\": \"A happy song about coding\"}'"
+
